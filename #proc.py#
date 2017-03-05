@@ -1,0 +1,111 @@
+import hashlib
+
+from multiprocessing import Process, Queue
+
+chord_size = 10
+
+def hashf (key):
+    sha = hashlib.sha1()
+    key = key.encode('utf-8')
+    sha.update(key)
+    hashed_key = sha.hexdigest()
+    hashed_key = int(hashed_key, 16)
+    return hashed_key % chord_size
+
+
+class Node(Process):
+    q_ins = {}
+    counter = 0
+    nodes = 0
+    
+    def __init__(self, queue_in, queue_succ, idx, low, high):
+        super(Processor, self).__init__()
+        self.queue_in = queue_in
+        self.queue_succ = queue_succ
+        self.idx = str(idx)
+        self.low = low
+        self.high = high
+        self.bucket = {}
+        # insert node chord TODO
+        nodes += 1
+        q_ins[self.idx] = queue_in
+
+    def is_mine (key):
+        if low < high:
+            return low <= key <= high
+        else:
+            return low <= key or key <= high
+
+    def run():
+        while(True):
+            request = self.queue_in.get()
+            request_lst = request.split(" ")
+
+            if request_lst[0] == self.idx:
+
+            else:
+                if request_lst[1] == "INSERT":
+                    self.insert(request_lst[2],request_lst[3],request_lst[0])
+                elif request_lst[1] == "QUERY":
+                    if request_lst[2] == "*":
+                        if int(request_lst[3]) < nodes:
+                            self.query(request_lst[1],request_lst[0])
+                    else:
+                        self.query(request_lst[1],request_lst[0])
+                        
+                elif request_lst[1] == "DELETE":
+                    self.delete(request_lst[1],request_lst[0])
+
+                       
+        
+
+    def insert (key, value, id_src):
+        # key: title of the song
+        # value: the song
+        hashed_key = hashf(key)
+    
+        if is_mine(hashed_key):
+            ls = bucket[hashed_key]
+        for x in ls:
+            if x[0] = key:
+                ls.remove(x)
+                bucket[hashed_key].append((key,value))
+            else:
+            # forward to the next node
+                self.queue_succ.put(id_src + " INSERT " + key + " " + value)
+
+    def query (key,id_src):
+        # check if key is *
+        if key != "*":
+            hashed_key = hashf(key)
+            if is_mine(hashed_key):
+                ls = bucket[hashed_key]
+                for x in ls:
+                    if x[0] = key:
+                        que
+                        return
+                print("Not found")
+                return
+            else:
+                self.queue_succ.put(id_src + " QUERY " + key)
+        else:
+            print (idx)
+            for x in ls:
+                print (x[0],x[1])
+            counter += 1
+            self.queue_succ.put(id_src + " QUERY " + key + " " + counter)
+        
+
+    def delete (key,id_src):
+
+        hashed_key = hashf(key)
+        
+        if is_mine(hashed_key):
+            ls = bucket[hashed_key]
+            for x in ls:
+                if x[0] = key:
+                    ls.remove(x)
+                    return # ???
+        else:
+            self.queue_succ.put(id_src + " DELETE " + key)
+                    
