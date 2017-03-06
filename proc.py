@@ -2,14 +2,21 @@ import hashlib
 import sys
 import random
 from multiprocessing import Process, Queue
+import threading
 
-chord_size = 10
+lock = threading.RLock()
+
+chord_size = 3
 SRC = 0
 CMD = 1
 KEY = 2
 VAL = 3
 CNT = 3
 
+DEBUG = False
+
+def debug(my_id,msg):
+    if DEBUG: print(my_id+":"+msg)
 
 def hashf (key):
     sha = hashlib.sha1()
@@ -17,7 +24,7 @@ def hashf (key):
     sha.update(key)
     hashed_key = sha.hexdigest()
     hashed_key = int(hashed_key, 16)
-    return hashed_key % chord_size
+    return (hashed_key)% chord_size
 
 
 class Node(Process):
@@ -34,8 +41,8 @@ class Node(Process):
         self.high = high
         self.bucket = {}
         # insert node chord TODO
-        Node.nodes += 1
-        Node.q_ins[self.idx] = queue_in
+        Node.nodes += 1 
+        Node.q_ins[str(idx)] = queue_in
 
     def is_mine (self,key):
         if self.low <= self.high:
@@ -45,8 +52,10 @@ class Node(Process):
 
     def run(self):
         while(True):
+ #           lock.acquire()
             request = self.queue_in.get()
-            request_lst = request.split(" ")
+#            lock.release()
+            request_lst = request.split(",")
 
             if request_lst[SRC] == self.idx:
             #we have a response and not a request
@@ -58,7 +67,7 @@ class Node(Process):
                     self.insert(request_lst[KEY],request_lst[VAL],request_lst[SRC])
                 elif request_lst[CMD] == "QUERY":
                     if request_lst[KEY] == "*":
-                        if int(request_lst[CNT]) < nodes:
+                        if int(request_lst[CNT]) < Nodes.nodes:
                             self.query(request_lst[KEY],request_lst[SRC],request_lst[CNT])
                     else:
                         self.query(request_lst[KEY],request_lst[SRC])
@@ -69,9 +78,10 @@ class Node(Process):
     def insert (self,key, val, id_src):
         # key: title of the song
         # value: the song
+        debug(self.idx,"Trying to insert " + key)
         hashed_key = str(hashf(key))
-    
         if self.is_mine(int(hashed_key)):
+            debug(self.idx,key + " is mine!")
             if hashed_key in self.bucket:
                 ls = self.bucket[hashed_key]
             else:
@@ -81,32 +91,39 @@ class Node(Process):
                 if x[0] == key:
                     ls.remove(x)
             self.bucket[hashed_key].append((key,val))
-            Node.q_ins[id_src].put(id_src + " INSERTED " + key + " " + val + " " + self.idx) 
+            debug(self.idx, "Writing to queue " + id_src + " " + key)
+     #       lock.acquire()
+            Node.q_ins[str(id_src)].put(id_src + ",INSERTED," + key + "," + val + "," + self.idx)
+      #      lock.release()
         else:
             # forward to the next node
-            self.queue_succ.put(id_src + " INSERT " + key + " " + val)
+            debug(self.idx,key + " not mine! Forwarding to next queue")
+     #       lock.acquire()
+            self.queue_succ.put(id_src + ",INSERT," + key + "," + val)
+      #      lock.release()
+                    
 
     def query (self,key,id_src,cnt=0):
         # check if key is *
         if key != "*":
             hashed_key = hashf(key)
             if self.is_mine(hashed_key):
-                ls = bucket[hashed_key]
+                ls = self.bucket[hashed_key]
                 for x in ls:
                     if x[0] == key:
-                        q_ins[id_src].put(id_src + " FOUND " + key + " " + val + " " + self.idx) 
+                        Node.q_ins[id_src].put(id_src + ",FOUND," + key + "," + val + "," + self.idx) 
                         return
-                q_ins[id_src].put(id_src + " QUERY_NOT_FOUND " + key + " " + self.idx) 
+                Node.q_ins[id_src].put(id_src + ",QUERY_NOT_FOUND," + key + "," + self.idx) 
                 return
             else:
-                self.queue_succ.put(id_src + " QUERY " + key)
+                self.queue_succ.put(id_src + ",QUERY," + key)
         else:
             # the first node that finds the * will start with cnt = 0 and increment
-            result = id_src + " STAR_FOUND "
+            result = id_src + ",STAR_FOUND,"
             for x in ls:
-                q_ins[id_src].put(result + x[0] + " " + x[1] + " " + self.idx)
+                Node.q_ins[id_src].put(result + x[0] + "," + x[1] + "," + self.idx)
             cnt += 1 
-            self.queue_succ.put(id_src + " QUERY " + key + " " + cnt)
+            self.queue_succ.put(id_src + ",QUERY," + key + "," + cnt)
         
 
     def delete (self,key,id_src):
@@ -117,25 +134,25 @@ class Node(Process):
             for x in ls:
                 if x[0] == key:
                     ls.remove(x)
-                    q_ins[id_src].put(id_src + " DELETED " + key + self.idx)
+                    Node.q_ins[id_src].put(id_src + ",DELETED," + key + "," + self.idx)
                     return
-            q_ins[id_src].put(id_src + " DELETE_NOT_FOUND " + key + self.idx)
+            Node.q_ins[id_src].put(id_src + ",DELETE_NOT_FOUND," + key + "," + self.idx)
         else:
-            self.queue_succ.put(id_src + " DELETE " + key)
-                    
+            self.queue_succ.put(id_src + ",DELETE," + key)
+
 def form(line) :
     lst = line.split(",")
-    return "init " + "INSERT " + lst[0] + " " + lst[1]  
+    return "init" + ",INSERT," + lst[0] + "," + lst[1]  
 
 if __name__ == "__main__":
     procs = []
-    queues = [Queue() for _ in range(0,10)]
-    for i in range(0,10):
-        p = Node(queues[(i-1)%10], queues[i], queues[(i+1)%10],i,i,i)
+    queues = [Queue() for _ in range(0,5)]
+    for i in range(1,4):
+        p = Node(queues[(i-1)%3+1], queues[i+1], queues[(i+1)%3+1],i,i,i)
         procs.append(p)
         p.start()
     for line in sys.stdin:
-        pr = random.randint(0,9)
-        queues[pr].put(form(line))
+        pr = random.randint(0,2)
+        queues[pr].put(form(line.rstrip("\n")))
         
     
