@@ -3,9 +3,8 @@ import sys
 import random
 from multiprocessing import Process, Queue
 
-
 m = 10
-chord_size = pow(m,2)
+chord_size = pow(2,m)
 SRC = 0
 CMD = 1
 KEY = 2
@@ -34,7 +33,7 @@ class Node (Process):
     q_ins = {}
     nodes = 0
 
-    def __init__(self, queue_pred, queue_in, queue_succ, node_num):
+    def __init__(self, queue_pred, queue_in, queue_succ, node_num, low, high):
         super(Node, self).__init__()
         self.queue_pred = queue_pred
         self.queue_in = queue_in
@@ -44,7 +43,7 @@ class Node (Process):
         self.low = low
         self.high = high
         self.bucket = {}
-        # insert node chord TODO
+        # insert node chord TODO, join/departure always through node 1
         Node.nodes += 1
         Node.q_ins[str(idx)] = queue_in
 
@@ -128,7 +127,7 @@ class Node (Process):
             self.queue_succ.put(id_src + ",QUERY," + key + "," + cnt)
 
 
-    def delete (self,key,id_src):
+    def delete (self, key, id_src):
 
         identifier = identifier_fnc(key)
         if self.is_mine(identifier):
@@ -152,6 +151,7 @@ if __name__ == "__main__":
     for i in range(0,10):
         p = Node(queues[(i-1)%10], queues[i], queues[(i+1)%10],i,i,i)
         procs.append(p)
+    # that will be a problem when nodes will join and depart
     for p in procs:
         p.start()
     for line in sys.stdin:
