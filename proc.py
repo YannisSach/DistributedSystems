@@ -2,9 +2,8 @@ import hashlib
 import sys
 import random
 from multiprocessing import Process, Queue
-import threading
 
-lock = threading.RLock()
+
 
 chord_size = 3
 SRC = 0
@@ -51,10 +50,9 @@ class Node(Process):
             return self.low <= key or key <= self.high
 
     def run(self):
+        print(self.q_ins)
         while(True):
- #           lock.acquire()
             request = self.queue_in.get()
-#            lock.release()
             request_lst = request.split(",")
 
             if request_lst[SRC] == self.idx:
@@ -92,15 +90,11 @@ class Node(Process):
                     ls.remove(x)
             self.bucket[hashed_key].append((key,val))
             debug(self.idx, "Writing to queue " + id_src + " " + key)
-     #       lock.acquire()
             Node.q_ins[str(id_src)].put(id_src + ",INSERTED," + key + "," + val + "," + self.idx)
-      #      lock.release()
         else:
             # forward to the next node
             debug(self.idx,key + " not mine! Forwarding to next queue")
-     #       lock.acquire()
             self.queue_succ.put(id_src + ",INSERT," + key + "," + val)
-      #      lock.release()
                     
 
     def query (self,key,id_src,cnt=0):
@@ -146,10 +140,12 @@ def form(line) :
 
 if __name__ == "__main__":
     procs = []
-    queues = [Queue() for _ in range(0,5)]
-    for i in range(1,4):
-        p = Node(queues[(i-1)%3+1], queues[i+1], queues[(i+1)%3+1],i,i,i)
+    queues = [Queue() for _ in range(0,3)]
+    for i in range(0,3):
+        p = Node(queues[(i-1)%3], queues[i], queues[(i+1)%3],i,i,i)
         procs.append(p)
+
+    for p in procs:
         p.start()
     for line in sys.stdin:
         pr = random.randint(0,2)
