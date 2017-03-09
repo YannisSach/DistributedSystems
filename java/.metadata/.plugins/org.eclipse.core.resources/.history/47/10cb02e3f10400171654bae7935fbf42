@@ -41,7 +41,7 @@ public class Server extends Thread{
 		
 		while (true){
 			
-			debug("next: "+ nextId + ", prev: " + prevId);
+			
 			//wait for requests
 		    try {
 		       serviceSocket = ss.accept();
@@ -81,25 +81,20 @@ public class Server extends Thread{
 		if (isAlone()){
 			this.nextPort=this.prevPort = Integer.parseInt(requestLst[PORT]);
 			MySocket cl = new MySocket(this.nextPort);
-			cl.write("NEXT"+",CONNECT," + this.myId + "," + this.myPort);
+			cl.write("NEXT"+",CONNECT," + this.myId + "," + this.myId);
 			cl.close();
 			MySocket cl2 = new MySocket(this.prevPort);
-			cl2.write("PREV"+",CONNECT," + this.myId + "," + this.myPort);
+			cl2.write("PREV"+",CONNECT," + this.myId + "," + this.myId);
 			cl2.close();
 			
 		}
 	}
 	
 	public void Connect (String[] requestLst){
-		if (requestLst[CON].equals("NEXT")){
-			this.nextPort = Integer.parseInt(requestLst[PORT]);
-			this.nextId = Integer.parseInt(requestLst[ID]);
-		}
-		else if (requestLst[CON].equals("PREV")){
-			this.prevPort = Integer.parseInt(requestLst[PORT]);
-			this.prevId = Integer.parseInt(requestLst[ID]);
+		if (requestLst[CON].equals("NEXT"){
 			
 		}
+		else if (requestLst[CON].equals("PREV")
 	}
 	
 	

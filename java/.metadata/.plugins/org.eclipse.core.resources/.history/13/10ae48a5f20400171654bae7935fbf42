@@ -41,7 +41,7 @@ public class Server extends Thread{
 		
 		while (true){
 			
-			debug("next: "+ nextId + ", prev: " + prevId);
+			
 			//wait for requests
 		    try {
 		       serviceSocket = ss.accept();

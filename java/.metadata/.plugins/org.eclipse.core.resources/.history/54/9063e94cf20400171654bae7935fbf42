@@ -20,7 +20,7 @@ public class DHT {
 			port.add(Util.getPort());
 			Server s = new Server(i,Util.hash(""+i),port.get(i-1));
 			s.start();
-			JoinSocket.write("INIT,JOIN,"+Util.hash(""+i)+","+port.get(i-1));
+			JoinSocket.write("INIT,JOIN,"+Util.hash(""+i)+","+port);
 		}
 		
 		

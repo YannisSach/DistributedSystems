@@ -56,12 +56,7 @@ public class MySocket{
 	    }
 	}
 	public void close(){
-		try {
-			this.mySocket.close();
-		}
-		catch (IOException e){
-			System.out.println(e);
-		}
+		this.mySocket.close();
 	}
 
 }

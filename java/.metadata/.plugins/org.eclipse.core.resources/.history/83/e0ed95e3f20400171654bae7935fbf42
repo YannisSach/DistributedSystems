@@ -19,7 +19,7 @@ public class Server extends Thread{
 		if (this.idx == 1){
 			this.nextId = myId;
 			this.prevId = myId+1;
-			this.prevPort = this.nextPort = 0;
+			this.prevPort = this.nextPort = MyPort;
 		}
 		this.myPort = MyPort;
 		Server.Nodes++;
