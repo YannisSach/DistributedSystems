@@ -170,8 +170,7 @@ public class Server extends Thread{
 			System.out.println("" + idx + "(" + myId + "): " + msg);
 	}
 	
-	
-	public void print(String msg){
+public void print(String msg){
 		
 		if (true)
 			System.out.println("" + idx + "(" + myId + "): " + msg);

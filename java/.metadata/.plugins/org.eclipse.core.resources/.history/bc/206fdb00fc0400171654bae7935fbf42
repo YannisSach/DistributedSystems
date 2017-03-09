@@ -41,16 +41,11 @@ public class Server extends Thread{
 		
 		while (true) {
 			
-			if (nextPort == -1) {
-				print("Goodbye");
-				return;
-			}
-			
 			print("next: "+ nextId + ", prev: " + prevId);
 			//wait for requests
 		    try {
 		       serviceSocket = ss.accept();
-		    }
+		        }
 		    catch (IOException e) {
 		       System.out.println(e);
 		    }
@@ -89,15 +84,7 @@ public class Server extends Thread{
 		int id = Integer.parseInt(requestLst[ID]);
 		
 		if (myId == id) {
-			MySocket cl = new MySocket(this.nextPort);
-			if (prevId == nextId)
-				prevId++;
-			cl.write("PREV"+",CONNECT," + this.prevId + "," + this.prevPort);
-			cl.close();
-			cl = new MySocket(this.prevPort);
-			cl.write("NEXT"+",CONNECT," + this.nextId + "," + this.nextPort);
-			cl.close();
-			nextPort = -1;
+			
 		}
 		else {
 			MySocket cl = new MySocket(this.nextPort);
@@ -170,8 +157,7 @@ public class Server extends Thread{
 			System.out.println("" + idx + "(" + myId + "): " + msg);
 	}
 	
-	
-	public void print(String msg){
+public void print(String msg){
 		
 		if (true)
 			System.out.println("" + idx + "(" + myId + "): " + msg);

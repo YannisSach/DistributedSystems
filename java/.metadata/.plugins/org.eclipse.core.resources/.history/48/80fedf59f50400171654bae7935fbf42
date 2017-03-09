@@ -39,18 +39,13 @@ public class Server extends Thread{
 		System.out.println("Hello from a thread: " + myId);
 		Socket serviceSocket = null;
 		
-		while (true) {
+		while (true){
 			
-			if (nextPort == -1) {
-				print("Goodbye");
-				return;
-			}
-			
-			print("next: "+ nextId + ", prev: " + prevId);
+			debug("next: "+ nextId + ", prev: " + prevId);
 			//wait for requests
 		    try {
 		       serviceSocket = ss.accept();
-		    }
+		        }
 		    catch (IOException e) {
 		       System.out.println(e);
 		    }
@@ -61,8 +56,8 @@ public class Server extends Thread{
 		    debug(request);
 		    String[] requestLst = request.split(",");
 		    //got request
-		    boolean isFirst = false;
 		    
+		    boolean isFirst = false;
 		    if (requestLst[SRC].equals("INIT")){
 		    	isFirst = true;
 		    	requestLst[SRC] = "" + this.myPort;	
@@ -73,47 +68,20 @@ public class Server extends Thread{
 		    else if (requestLst[CMD].equals("CONNECT")){
 		    	Connect(requestLst);
 		    }
-		    else if (requestLst[CMD].equals("DEPART")) {
-		    	DepartRequest(requestLst); 
-		    }
 			
 			
 			
 		}
 	    
 	    
-	}
-	
-	public void DepartRequest (String[] requestLst) {
-		
-		int id = Integer.parseInt(requestLst[ID]);
-		
-		if (myId == id) {
-			MySocket cl = new MySocket(this.nextPort);
-			if (prevId == nextId)
-				prevId++;
-			cl.write("PREV"+",CONNECT," + this.prevId + "," + this.prevPort);
-			cl.close();
-			cl = new MySocket(this.prevPort);
-			cl.write("NEXT"+",CONNECT," + this.nextId + "," + this.nextPort);
-			cl.close();
-			nextPort = -1;
-		}
-		else {
-			MySocket cl = new MySocket(this.nextPort);
-			cl.write(String.join(",", requestLst));
-			cl.close();
-		}
-		
 	}
 	
 	public void JoinRequest(String[] requestLst,boolean isFirst){
-		
+		//i am alone at the dht
 		int port = Integer.parseInt(requestLst[PORT]);
 		int id = Integer.parseInt(requestLst[ID]);
 		
 		if (isAlone()) {
-			debug("req arrived (alone): " + Integer.parseInt(requestLst[PORT]) + " " + Integer.parseInt(requestLst[ID]));
 			this.nextPort =this.prevPort = port;
 			this.nextId =this.prevId = id;
 			MySocket cl = new MySocket(this.nextPort);
@@ -126,25 +94,14 @@ public class Server extends Thread{
 		}
 		
 		if (isBetween(id, myId, nextId)) {
-			debug("req arrived (between): " + Integer.parseInt(requestLst[PORT]) + " " + Integer.parseInt(requestLst[ID]));
 			MySocket cl = new MySocket(this.nextPort);
-			//send to next node
 			cl.write("PREV"+",CONNECT," + id + "," + port);
-			cl.close();
-			
-			//send to new node
-			cl = new MySocket(port);
-			cl.write("PREV"+",CONNECT," + this.myId + "," + this.myPort);
-			cl.close();
-			cl = new MySocket(port);
-			cl.write("NEXT"+",CONNECT," + this.nextId + "," + this.nextPort);
 			cl.close();
 			this.nextPort = port;
 			this.nextId = id;
 			return;
 		}
 		
-		debug("req arrived: " + Integer.parseInt(requestLst[PORT]) + " " + Integer.parseInt(requestLst[ID]));
 		MySocket cl = new MySocket(this.nextPort);
 		cl.write(requestLst[SRC] + ",JOIN," + id + "," + port);
 		cl.close();
@@ -167,13 +124,6 @@ public class Server extends Thread{
 	public void debug(String msg){
 		
 		if (Util.debug)
-			System.out.println("" + idx + "(" + myId + "): " + msg);
-	}
-	
-	
-	public void print(String msg){
-		
-		if (true)
 			System.out.println("" + idx + "(" + myId + "): " + msg);
 	}
 	

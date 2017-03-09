@@ -7,7 +7,7 @@ import java.math.*;
 public class Util {
 	
 	public static ReentrantLock l = new ReentrantLock();
-	public static int port = 23500;
+	public static int port = 23000;
 	public static boolean debug = false;
 	public static int ChordSize = 1000;
 	

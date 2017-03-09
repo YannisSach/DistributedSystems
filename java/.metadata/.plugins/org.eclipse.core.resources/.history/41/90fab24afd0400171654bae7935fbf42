@@ -43,7 +43,6 @@ public class Server extends Thread{
 			
 			if (nextPort == -1) {
 				print("Goodbye");
-				return;
 			}
 			
 			print("next: "+ nextId + ", prev: " + prevId);
@@ -170,8 +169,7 @@ public class Server extends Thread{
 			System.out.println("" + idx + "(" + myId + "): " + msg);
 	}
 	
-	
-	public void print(String msg){
+public void print(String msg){
 		
 		if (true)
 			System.out.println("" + idx + "(" + myId + "): " + msg);
