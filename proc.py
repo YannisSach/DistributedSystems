@@ -8,8 +8,9 @@ import time
 import threading
 
 lock = threading.RLock()
+# m = 10 chord = pow(2,10)
 default_port = 24900
-chord_size = 10
+chord_size = 1000
 next_port = default_port
 SRC = 0
 CMD = 1
@@ -17,7 +18,7 @@ KEY = 2
 VAL = 3
 CNT = 3
 ID = 2
-PORT = 0
+PORT = 3
 RSIZE = 15
 
 DEBUG = True
@@ -30,7 +31,6 @@ def busy_accept(s):
         except socket.error:
             time.sleep(1)
             continue
-        
 
 def debug(my_id,msg):
     if DEBUG: print(my_id+":"+msg)
@@ -57,6 +57,7 @@ def build_socket_server(port):
     return my_ss
 
 def build_socket_client(port):
+    debug("?" ,  "trying to build socket")
     my_sc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     my_sc.connect(("localhost",port))
     return my_sc
@@ -84,7 +85,7 @@ class PendingRequest(Process):
     def run(self):
         debug(str(self.port), "Waiting to accept")
         (self.c,a) = busy_accept(self.my_socket)
-        debug("Connection established with pending request at address: " + str(a))
+        debug(str(self.port),"Connection established with pending request at address: " + str(a))
         print(str(self.c.recv(RSIZE)))
 
 
@@ -136,21 +137,21 @@ class Server(Process):
             #SLEEP...
 
     def join_request(self,request,rq_lst):
-        debug(self.idx, "Entered join request")
-        '''
+        debug(str(self.idx), "Entered join request")
         if self.next_socket == None or self.prev_socket == None:
             new_prev_sc = build_socket_client(rq_lst[PORT])
             self.prev_socket = new_prev_sc
             self.prev_id = rq_lst[ID]
-            debug(self.idx, "Connected with the pred")
+            debug(str(self.idx), "Connected with the pred at port:" + str(rq_lst[PORT]))
             new_next_sc = build_socket_client(rq_lst[PORT])
-            debug(self.idx, "Connected with the succ")
+            debug(str(self.idx), "Connected with the succ at port:" + str(rq_lst[PORT]))
             self.next_socket = new_next_sc
             self.next_id = rq_lst[ID]
             return
 
         if is_between(rq_lst[ID],self.prev_id, self.my_id):
             new_prev_sc = build_socket_client(rq_lst[PORT])
+            debug(str(self.idx), "Connected with the pred")
             self.prev_socket.close()
             self.prev_socket = new_prev_sc
             self.prev_id = rq_lst[ID]
@@ -160,13 +161,13 @@ class Server(Process):
 
         if is_between(rq_lst[ID],self.my_id,self.next_id):
             new_next_sc = build_socket_client(rq_lst[PORT])
+            debug(str(self.idx), "Connected with the succ")
             self.next_socket.send(request.encode)
             self.next_socket.close()
             self.next_socket = new_next_sc
             self.next_id = rq_lst[ID]
             self.next_socket.send(self.my_id.encode())
             return
-        '''
 
     def run(self):
 
@@ -297,5 +298,5 @@ if __name__ == "__main__":
         p.start()
         procs.append(p)
         debug("Coord", "Adding new request...")
-        queues[1].put("init,JOIN," + str(hashf(i)))
+        queues[1].put("init,JOIN," + str(hashf(i)) + "," + str(p.my_port) + "," + str(i))
         time.sleep(1)
