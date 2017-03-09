@@ -1,5 +1,4 @@
 import java.net.*;
-import java.util.HashMap;
 import java.io.*;
 
 
@@ -11,7 +10,7 @@ public class Server extends Thread{
 	public int prevPort, nextPort, myPort;
 	public static int Nodes = 0;
 	public ServerSocket ss;
-	//public AssocArray
+	
 	public static int SRC=0,CMD=1,KEY=2,VAL=3,CNT=3,ID=2,PORT=3,CON=0;
 	
 	public Server(int idx, int myId,int MyPort){
