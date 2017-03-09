@@ -5,11 +5,12 @@ from multiprocessing import Process, Queue
 import queue as qq
 import socket
 import time
+import threading
 
-
-
-default_port = 24600
+lock = threading.RLock()
+default_port = 24900
 chord_size = 10
+next_port = default_port
 SRC = 0
 CMD = 1
 KEY = 2
@@ -27,8 +28,10 @@ def busy_accept(s):
             (conn,a) = s.accept()
             return (conn,a)
         except socket.error:
+            time.sleep(1)
             continue
-            
+        
+
 def debug(my_id,msg):
     if DEBUG: print(my_id+":"+msg)
 
@@ -39,6 +42,12 @@ def hashf (key):
     hashed_key = sha.hexdigest()
     hashed_key = int(hashed_key, 16)
     return (hashed_key)% chord_size
+
+def get_next_port():
+    global next_port
+    next_port += 1
+    temp = next_port
+    return temp
 
 def build_socket_server(port):
     my_ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -63,30 +72,43 @@ class PendingRequest(Process):
 
     def __init__(self, port):
         super(PendingRequest, self).__init__()
-        self.port = Server.get_next_port()
-        self.my_socket = build_socket_server(self.port)
+        while True:
+            try:
+                self.port = get_next_port()
+                self.my_socket = build_socket_server(self.port)
+                debug(str(self.port),"PendingRequest is waiting on port: " + str(self.port))
+                break
+            except socket.error:
+                continue
 
     def run(self):
+        debug(str(self.port), "Waiting to accept")
         (self.c,a) = busy_accept(self.my_socket)
+        debug("Connection established with pending request at address: " + str(a))
         print(str(self.c.recv(RSIZE)))
-        
 
 
 class Server(Process):
     q_ins = {}
     nodes = 0
-    next_port = default_port
-    
+
     def __init__(self,my_q, idx, my_id):
         super(Server, self).__init__()
         #self.port_pred = port_pred
-        #self.port_succ = port_succ
-        self.my_port = Server.get_next_port()
+        #self.port_succ = port_succ 
         self.my_q = my_q
         self.idx = idx
         self.my_id = str(my_id)
         self.bucket = {}
-        self.my_ss = build_socket_server(self.my_port)
+        while True:
+            try:
+                self.my_port = get_next_port()
+                debug(str(idx), "My port is " + str(self.my_port))
+                self.my_ss = build_socket_server(self.my_port)
+                break
+            except socket.error:
+                debug(str(idx), "Port is already in use trying next...")
+                continue
         # insert node chord TODO
         Server.nodes += 1
         if idx == 1:
@@ -110,28 +132,23 @@ class Server(Process):
                         continue
                 else:
                     continue
-                
 
             #SLEEP...
 
-                  
     def join_request(self,request,rq_lst):
-        if not self.next_socket or not self.prev_socket:
-            new_next_sc = build_socket_client(rq_lst[PORT])
-            self.next_socket = new_next_sc
-            self.next_id = rq_lst[ID]
+        debug(self.idx, "Entered join request")
+        '''
+        if self.next_socket == None or self.prev_socket == None:
             new_prev_sc = build_socket_client(rq_lst[PORT])
             self.prev_socket = new_prev_sc
             self.prev_id = rq_lst[ID]
-            return
-        if is_between(rq_lst[ID],self.my_id,self.next_id):
+            debug(self.idx, "Connected with the pred")
             new_next_sc = build_socket_client(rq_lst[PORT])
-            self.next_socket.send(request.encode)
-            self.next_socket.close()
+            debug(self.idx, "Connected with the succ")
             self.next_socket = new_next_sc
             self.next_id = rq_lst[ID]
-            self.next_socket.send(self.my_id.encode())
-            return 
+            return
+
         if is_between(rq_lst[ID],self.prev_id, self.my_id):
             new_prev_sc = build_socket_client(rq_lst[PORT])
             self.prev_socket.close()
@@ -139,48 +156,60 @@ class Server(Process):
             self.prev_id = rq_lst[ID]
             self.prev_socket.send(self.my_id.encode())
                   #TODO transfer
-            return 
-        
-    def get_next_port():
-        Server.next_port +=1
-        return Server.next_port
-        
-        
+            return
+
+        if is_between(rq_lst[ID],self.my_id,self.next_id):
+            new_next_sc = build_socket_client(rq_lst[PORT])
+            self.next_socket.send(request.encode)
+            self.next_socket.close()
+            self.next_socket = new_next_sc
+            self.next_id = rq_lst[ID]
+            self.next_socket.send(self.my_id.encode())
+            return
+        '''
+
     def run(self):
 
         if Server.nodes > 1: #not the first Node
-            debug(str(self.idx),"wanna enter nigga")
+            debug(str(self.idx),"Trying to connect")
             (pred_conn,a) = busy_accept(self.my_ss)
+            debug(str(self.idx), "Pred connection established with address:" + str(a))
             (succ_conn,a) = busy_accept(self.my_ss)
+            debug(str(self.idx), "Succ connection established with address:" + str(a))
+
             while(True):
                 prv_id = pred_conn.recv(RSIZE)
                 if prv_id:
                   self.prev_id = prv_id.decode()
+                  debug(str(self.idx), "Received previous id:" + str(self.prev_id))
                   break
             while(True):
                 nxt_id = succ_conn.recv(RSIZE)
                 if nxt_id:
                   self.next_id = nxt_id.decode()
+                  debug(str(self.idx), "Received next id:" + str(self.next_id))
                   break
-                           
-        
         #print(self.q_ins)?
         while(True):
-            debug(str(self.idx),"left " + self.prev_id)
-            debug(str(self.idx),"right " + self.next_id)
-            debug(str(self.idx),"myhash " + self.my_id)
+            debug(str(self.idx),"Hashed left id " + self.prev_id)
+            debug(str(self.idx),"Hashed right id " + self.next_id)
+            debug(str(self.idx),"Hashed myId " + self.my_id)
 
-            debug(str(self.idx),"wating for req")
+            debug(str(self.idx),"Waiting for req...")
             request = self.wait_for_request()
-            debug(str(self.idx),"got req" + request)
+            debug(str(self.idx),"Got req: " + request)
             request_lst = request.split(",")
-
             if request_lst[SRC] == "init":
-                port = Server.get_next_port()
-                request_lst[SRC] = port
-                PendingRequest(port).start()
+                port = get_next_port()
+                pr = PendingRequest(port)
+                pr.start()
+                debug(str(self.idx), request_lst[SRC])
+                request_lst[SRC] = pr.port
+                debug(str(self.idx), "When resolved this request will be sent to port:" + str(pr.port))
             if request_lst[CMD] == "JOIN":
+                debug(str(self.idx), "Starting join_request protocol")
                 self.join_request(request,request_lst)
+                debug(str(self.idx), "Join was successful")
             if request_lst[CMD] == "INSERT":
                 self.insert(request_lst[KEY],request_lst[VAL],request_lst[SRC])
             elif request_lst[CMD] == "QUERY":
@@ -215,7 +244,6 @@ class Server(Process):
             # forward to the next node
             debug(self.idx,key + " not mine! Forwarding to next queue")
             self.queue_succ.put(id_src + ",INSERT," + key + "," + val)
-                    
 
     def query (self,key,id_src,cnt=0):
         # check if key is *
@@ -238,7 +266,6 @@ class Server(Process):
                 Node.q_ins[id_src].put(result + x[0] + "," + x[1] + "," + self.idx)
             cnt += 1 
             self.queue_succ.put(id_src + ",QUERY," + key + "," + cnt)
-        
 
     def delete (self,key,id_src):
 
@@ -254,9 +281,7 @@ class Server(Process):
         else:
             self.queue_succ.put(id_src + ",DELETE," + key)
 
-    
 
-            
 def form(line) :
     lst = line.split(",")
     return "init" + ",INSERT," + lst[0] + "," + lst[1]  
@@ -271,5 +296,6 @@ if __name__ == "__main__":
         p =Server(queues[i],i,hashf(i))
         p.start()
         procs.append(p)
+        debug("Coord", "Adding new request...")
         queues[1].put("init,JOIN," + str(hashf(i)))
         time.sleep(1)
