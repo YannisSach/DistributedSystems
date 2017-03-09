@@ -1,0 +1,31 @@
+import java.util.concurrent.locks.*;
+
+public class Util {
+	
+	public static ReentrantLock l = new ReentrantLock();
+	public static int port = 10000;
+	public static boolean debug = true;
+	
+	
+	public static hash(int key){
+		
+	}
+
+	
+	
+	
+	
+	public static void debug(String msg){
+		if (debug)
+			System.out.println(msg);
+	}
+	public static int getPort(){
+		l.lock();
+		int tempPort = port++;
+		l.unlock();
+		return tempPort;
+		
+	}
+	
+	
+}

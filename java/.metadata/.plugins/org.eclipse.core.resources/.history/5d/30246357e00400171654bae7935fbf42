@@ -1,0 +1,15 @@
+
+public class Util {
+	
+	public static ports = 10000;
+	public static boolean debug = true;
+	public static void debug(String msg){
+		if (debug)
+			System.out.println(msg);
+	}
+	public static getPort(){
+		
+	}
+	
+	
+}

@@ -1,0 +1,8 @@
+
+public class DHT {
+	public static void main (String[] args){
+		Server mys = new Server(1,1,1,1);
+		mys.start();
+	}
+
+}

@@ -1,0 +1,33 @@
+import java.net.*;
+import java.io.*;
+
+
+public class DHT {
+	
+	public static void main (String[] args){
+		ServerSocket serv=null;
+		int firstPort = Util.getPort();
+		for (int i=0; i<10; i++)
+			Util.debug("" + i +": " + Util.hash(""+i));
+		Server mys = new Server(1,Util.hash("1"),firstPort);
+		mys.start();
+		MySocket cs = new MySocket(firstPort);
+		
+		
+		for (int i=2; i<3; i++ ){
+			int port = Util.getPort();
+			Server s = new Server(i,Util.hash(""+i),port);
+			s.start();
+			cs.write("INIT,JOIN"+Util.hash(""+i)+port);
+		}
+		
+		
+	   
+	    
+	    
+	    
+
+		
+	}
+
+}

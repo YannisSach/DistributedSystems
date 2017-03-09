@@ -1,0 +1,19 @@
+import java.net.*;
+import java.io.*;
+
+
+public class MySocket extends Socket{
+	
+	
+	public MySocket(int port){
+		super("localhost", port);
+		try {
+	           super("localhost", port);
+	    }
+	    catch (IOException e) {
+	        System.out.println(e);
+	    }
+		
+	}
+
+}

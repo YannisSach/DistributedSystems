@@ -1,0 +1,38 @@
+import java.net.*;
+import java.io.*;
+
+public class Server extends Thread{
+	public int idx;
+	public int myId;
+	public int nextId;
+	public int prevId;
+	public int prevPort, nextPort, myPort;
+	public static int Nodes = 0;
+	
+	public Server(int idx, int myId,int nextId,int prevId,int DHTport){
+		this.idx = idx;
+		this.myId = myId;
+		this.nextId = nextId;
+		this.prevId = prevId;
+		this.prevPort = this.nextPort = 0;
+		this.x = new MySocket(DHTport);
+		Server.Nodes++;
+	}
+	
+	public void run() {
+		System.out.println("Hello from a thread!" + myId);
+	    DHTSock.write("adadaadad");
+	    //while (true){
+	    	
+	    //}
+	}
+	
+	
+	
+	public void debug(String msg){
+		
+		if (Util.debug)
+			System.out.println("" + idx + "(" + myId + ")" + msg);
+	}
+
+}

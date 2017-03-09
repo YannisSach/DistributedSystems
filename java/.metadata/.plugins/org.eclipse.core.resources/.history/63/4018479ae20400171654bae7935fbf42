@@ -1,0 +1,30 @@
+import java.net.*;
+import java.io.*;
+
+
+public class DHT {
+	
+	public static void main (String[] args){
+		ServerSocket serv=null;
+		int port = Util.getPort();
+		try {
+			serv = new ServerSocket(port);
+		}
+		catch (IOException e) {
+	           System.out.println(e);
+	           
+	    }
+		Server mys = new Server(1,1,1,1,port);
+		mys.start();
+		MySocket cs = new MySocket(port);
+		cs.write("msg");
+		
+	   
+	    
+	    
+	    
+
+		
+	}
+
+}

@@ -1,0 +1,40 @@
+import java.net.*;
+import java.io.*;
+
+
+public class DHT {
+	
+	public static void main (String[] args){
+		ServerSocket serv=null;
+		try {
+			serv = new ServerSocket(25000);
+		}
+		catch (IOException e) {
+	           System.out.println(e);
+	           
+	    }
+		Server mys = new Server(1,1,1,1);
+		mys.start();
+		
+		Socket serviceSocket = null;
+	    try {
+	       serviceSocket = serv.accept();
+	        }
+	    catch (IOException e) {
+	       System.out.println(e);
+	    }
+	    
+	    BufferedReader input;
+	    try {
+	       input = new BufferedReader(new InputStreamReader (serviceSocket.getInputStream()));
+	       String answer = input.readLine();
+	       System.out.println(answer);
+	    }
+	    catch (IOException e) {
+	       System.out.println(e);
+	    }
+
+		
+	}
+
+}
