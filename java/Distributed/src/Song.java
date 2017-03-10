@@ -12,4 +12,10 @@ public class Song {
 	public int hashCode(){
 		return Util.hash(Key);
 	}
+	
+	@Override
+	public boolean equals(Object o){
+		return this.Key == ((Song) o).Key;
+		
+	}
 }

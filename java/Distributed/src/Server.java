@@ -1,4 +1,5 @@
 import java.net.*;
+import java.util.Collection;
 import java.util.HashMap;
 import java.io.*;
 
@@ -79,8 +80,24 @@ public class Server extends Thread{
 		    else if (requestLst[CMD].equals("DEPART")) {
 		    	DepartRequest(requestLst); 
 		    }
-			
-			
+		    else if (requestLst[CMD].equals("INSERT")){
+		    	this.insertRequest(requestLst);
+		    	
+		    }
+		    else if (requestLst[CMD].equals("QUERY")){
+		    	if (requestLst[KEY].equals("*")){
+		    		this.queryStarRequest(requestLst);
+		    	}
+		    	else{
+		    		this.queryRequest(requestLst);
+		    	}		    	
+		    }
+		    else if (requestLst[CMD].equals("DELETE")){
+		    	deleteRequest(requestLst);
+		    }
+		    else if (requestLst[CMD].equals("INSERTED")){
+		    	this.print(request + " Hash of song:" + Util.hash(requestLst[KEY]));
+		    }
 			
 		}
 	    
@@ -196,7 +213,7 @@ public class Server extends Thread{
 		
 		Bucket bucket = buckets.remove(song.Key);
 		if (bucket!=null){
-			bucket.add(song);
+			bucket.addOrUpdate(song);
 			buckets.put(bucket.HashedKey, bucket);
 		}
 		else{
@@ -208,14 +225,95 @@ public class Server extends Thread{
 	
 	public void insertRequest(String[] requestLst){
 		int hashed = Util.hash(requestLst[KEY]);
+		int srcPort = Integer.parseInt(requestLst[SRC]);
 		if (isBetween(hashed,this.prevId,this.myId)){
 			insert(new Song(requestLst[KEY],requestLst[VAL]));
+			MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
 		}
 		else{
-			
+			MySocket.send(this.nextPort,requestLst[SRC] + ",INSERT," + requestLst[KEY] + "," + requestLst[VAL]);
 		}
 	}
 		
+	public void queryRequest(String[] requestLst){
+		int hashed = Util.hash(requestLst[KEY]);
+		if (isBetween(hashed,this.prevId,this.myId)){
+			int port = Integer.parseInt(requestLst[SRC]);
+			String val = query(new Song(requestLst[KEY], null));
+			//Send response to requester
+			if(val == null){
+				MySocket.send(port,requestLst[SRC] + ",NOT_FOUND," + requestLst[KEY]);
+			}
+			else{ 
+				MySocket.send(port, requestLst[SRC] + ",FOUND," + requestLst[KEY] + "," + val);
+			}
+			
+		}
+		
+		else{
+			MySocket.send(this.nextPort,requestLst[SRC] + ",QUERY," + requestLst[KEY]);
+		}
+	}
+	
+	public void queryStarRequest(String[] requestLst){
+		Collection<Bucket> bc = buckets.values();
+		int port = Integer.parseInt(requestLst[SRC]);
+		for(Bucket b : bc){
+			for(Song s : b){
+				MySocket cl = new MySocket(port);
+				//send to next node
+				//print(requestLst[SRC] + ",FOUND," + s.Key + "," + s.Val);
+				cl.write(requestLst[SRC] + ",FOUND," + s.Key + "," + s.Val);
+				cl.close();
+			}
+		}
+		if (port != this.nextPort){
+			MySocket.send(this.nextPort, requestLst[SRC] + ",QUERY,*");
+		}
+		
+	}
+	
+	public String query(Song song){
+		
+		Bucket bucket = buckets.get(song.Key);
+		int i = bucket.indexOf(song);
+		String songVal = null;
+		if(i == -1){
+		}
+		else{
+			songVal = bucket.get(i).Val;
+		}
+		
+		return songVal;
+	
+		//send answer to the requester
+		
+		
+	}
+	
+	public void deleteRequest(String[] requestLst){
+		int hashed = Util.hash(requestLst[KEY]);
+		if (isBetween(hashed,this.prevId,this.myId)){
+			delete(new Song(requestLst[KEY], null));
+		}
+		else{
+			MySocket cl = new MySocket(this.nextPort);
+			//send to next node
+			cl.write(requestLst[SRC] + ",DELETE," + requestLst[KEY]);
+			cl.close();
+		}
+	}
+	
+	public void delete(Song song){
+		Bucket bucket = buckets.get(song.Key);
+		int i = bucket.indexOf(song);
+		if(i == -1){
+			return;
+		}
+		else{
+			bucket.remove(i);
+		}
+	}
 	
 
 }

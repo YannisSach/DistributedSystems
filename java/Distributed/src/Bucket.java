@@ -14,6 +14,15 @@ public class Bucket extends ArrayList<Song>{
 		return this.HashedKey;
 	}
 	
-	
+	public void addOrUpdate(Song s){
+		int i = this.indexOf(s);
+		if(i == -1){
+			this.add(s);
+		}
+		else{
+			this.get(i).Val = s.Val;
+		}
+				
+	}
 
 }

@@ -24,6 +24,8 @@ public class MySocket{
 	}
 	
 	
+	
+	
 	public MySocket(Socket sock){
 		this.mySocket = sock;
 		this.myPort = sock.getPort();
@@ -45,6 +47,12 @@ public class MySocket{
 	    return answer;
 	}
 	
+	static public void send(int port, String input){
+		MySocket JoinSocket = new MySocket(port);
+		JoinSocket.write(input);
+		JoinSocket.close();
+	}
+	
 	public void write(String input){
 		PrintWriter output;
 	    try {
@@ -55,6 +63,7 @@ public class MySocket{
 	       System.out.println(e);
 	    }
 	}
+	
 	public void close(){
 		try {
 			this.mySocket.close();

@@ -1,0 +1,17 @@
+import java.util.*;
+
+public class Bucket extends ArrayList<Song>{
+	int HashedKey;
+	
+	public Bucket(Song song){
+		super();
+		this.HashedKey = Util.hash(song.Key);
+		this.add(song);
+	}
+	
+	@Override
+	public int hashCode(){
+		return this.HashedKey;
+	}
+
+}

@@ -1,3 +1,4 @@
+import java.util.Random;
 import java.util.concurrent.locks.*;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -10,7 +11,6 @@ public class Util {
 	public static int port = 23500;
 	public static boolean debug = false;
 	public static int ChordSize = 1000;
-	
 	
 	public static int hash(String key){
 		String hashString =  generateSHA1(key);
@@ -60,5 +60,12 @@ public class Util {
 		
 	}
 	
+	public static int getRandom(int minimum, int maximum){
+		Random rn = new Random();
+		int n = maximum - minimum + 1;
+		int i = Math.abs(rn.nextInt()) % n;
+		int randomNum =  minimum + i;
+		return randomNum;
+	}
 	
 }

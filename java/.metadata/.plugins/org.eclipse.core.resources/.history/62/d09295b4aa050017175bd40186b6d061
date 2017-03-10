@@ -1,0 +1,75 @@
+import java.net.*;
+import java.io.*;
+
+
+public class MySocket{
+	public Socket mySocket;
+	public int myPort;
+	
+	public MySocket(int port){
+		this.myPort = port;
+		Socket MyClient=null;
+		while (true){
+			try {
+				MyClient = new Socket("localhost", port);
+				break;
+			}
+			catch (IOException e) {
+				System.out.println(e);
+				continue;
+			}	    
+		}
+		this.mySocket = MyClient;
+		
+	}
+	
+	
+	
+	
+	public MySocket(Socket sock){
+		this.mySocket = sock;
+		this.myPort = sock.getPort();
+	}
+	
+	public String read(){
+		BufferedReader input;
+		String answer="error";
+	    try {
+	    	InputStreamReader is = new InputStreamReader (mySocket.getInputStream());
+	    	input = new BufferedReader(is);
+	    	answer = input.readLine();
+	    	return answer;
+	    }
+	    catch (IOException e) {
+	       System.out.println(e);
+	       
+	    }
+	    return answer;
+	}
+	
+	public void send(String input){
+		this.write(input);
+		this.close()
+	}
+	
+	public void write(String input){
+		PrintWriter output;
+	    try {
+	       output = new PrintWriter(mySocket.getOutputStream(),true);
+	       output.println(input);
+	    }
+	    catch (IOException e) {
+	       System.out.println(e);
+	    }
+	}
+	
+	public void close(){
+		try {
+			this.mySocket.close();
+		}
+		catch (IOException e){
+			System.out.println(e);
+		}
+	}
+
+}
