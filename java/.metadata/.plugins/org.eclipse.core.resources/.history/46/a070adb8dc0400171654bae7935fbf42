@@ -1,9 +1,0 @@
-
-public class Util {
-	public static db = true;
-	public static debug(String msg){
-		if (db)
-			System.out.println(msg);
-	}
-
-}

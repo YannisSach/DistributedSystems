@@ -1,0 +1,12 @@
+import java.util.*;
+
+public class Bucket extends ArrayList<Song>{
+	String Key;
+	
+	public Bucket(){
+		super();
+	}
+	
+	
+
+}

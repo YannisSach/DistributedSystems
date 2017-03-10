@@ -11,18 +11,19 @@ public class Server extends Thread{
 	public int prevPort, nextPort, myPort;
 	public static int Nodes = 0;
 	public ServerSocket ss;
-	//public AssocArray
 	public static int SRC=0,CMD=1,KEY=2,VAL=3,CNT=3,ID=2,PORT=3,CON=0;
+	public HashMap<Integer, Bucket> buckets;
 	
 	public Server(int idx, int myId,int MyPort){
 		this.idx = idx;
 		this.myId = myId;
 		if (this.idx == 1){
 			this.nextId = myId;
-			this.prevId = myId+1;
+			this.prevId = myId;
 			this.prevPort = this.nextPort = 0;
 		}
 		this.myPort = MyPort;
+		buckets = new HashMap<Integer,Bucket>();
 		Server.Nodes++;
 		this.ss=null;
 		try {
@@ -32,6 +33,7 @@ public class Server extends Thread{
 	           System.out.println(e);
 	           
 	    }
+		
 		
 		
 	}
@@ -91,8 +93,8 @@ public class Server extends Thread{
 		
 		if (myId == id) {
 			MySocket cl = new MySocket(this.nextPort);
-			if (prevId == nextId)
-				prevId++;
+			//if (prevId == nextId)
+				//prevId++;
 			cl.write("PREV"+",CONNECT," + this.prevId + "," + this.prevPort);
 			cl.close();
 			cl = new MySocket(this.prevPort);
@@ -180,14 +182,40 @@ public class Server extends Thread{
 	
 	public static boolean isBetween (int key, int low, int high) {
 	    if (low <= high) {
-	        return low <= key && key <= high;
+	        return low < key && key <= high;
 	    }
 	    else
-	        return low <= key || key <= high;
+	        return low < key || key <= high;
 	}
 	
 	public boolean isAlone(){
-		return this.prevId - this.nextId == 1;
+		return this.prevId == this.nextId && this.myId==this.prevId;
 	}
+	
+	public void insert(Song song){
+		
+		Bucket bucket = buckets.remove(song.Key);
+		if (bucket!=null){
+			bucket.add(song);
+			buckets.put(bucket.HashedKey, bucket);
+		}
+		else{
+			bucket = new Bucket(song);
+			buckets.put(bucket.HashedKey, bucket);
+		}		
+		
+	}
+	
+	public void insertRequest(String[] requestLst){
+		int hashed = Util.hash(requestLst[KEY]);
+		if (isBetween(hashed,this.prevId,this.myId)){
+			insert(new Song(requestLst[KEY],requestLst[VAL]));
+		}
+		else{
+			
+		}
+	}
+		
+	
 
 }

@@ -1,9 +1,0 @@
-
-public class Util {
-	public static boolean db = true;
-	public static void debug(String msg){
-		if (db)
-			System.out.println(msg);
-	}
-
-}

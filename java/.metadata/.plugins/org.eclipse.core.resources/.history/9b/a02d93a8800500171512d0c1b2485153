@@ -1,0 +1,9 @@
+import java.util.*;
+
+public class Bucket extends ArrayList<Song>{
+	
+	public Bucket(){
+		super();
+	}
+
+}
