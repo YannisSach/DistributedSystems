@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -8,7 +9,7 @@ import java.math.*;
 public class Util {
 	
 	public static ReentrantLock l = new ReentrantLock();
-	public static int port = 23500;
+	public static int port = 23700;
 	public static boolean debug = false;
 	public static int ChordSize = 1000;
 	
@@ -58,6 +59,16 @@ public class Util {
 		l.unlock();
 		return tempPort;
 		
+	}
+	
+	public static void wait(int sec){
+		try {
+			System.out.println("Going to sleep");
+			TimeUnit.SECONDS.sleep(sec);
+		}
+		catch (Exception e) {
+	           System.out.println(e);
+	    }
 	}
 	
 	public static int getRandom(int minimum, int maximum){

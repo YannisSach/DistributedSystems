@@ -33,20 +33,11 @@ public class DHT {
 			s.start();
 			JoinSocket.write("INIT,JOIN,"+Util.hash(""+i)+","+ports.get(i-1));
 			JoinSocket.close();
+			
 		}
 		
-		try {
-			System.out.println("Going to sleep");
-			TimeUnit.SECONDS.sleep(2);
-		}
-		catch (Exception e) {
-	           System.out.println(e);
-	    }
-		
-		//MySocket JoinSocket = new MySocket(ports.get(0));
-		//JoinSocket.write("INIT,DEPART,"+Util.hash(""+5)+","+ports.get(5-1));
-		//JoinSocket.close();
-		
+		Util.wait(4);
+				
 		
 		String line;
 		int ln = 10;
@@ -60,6 +51,19 @@ public class DHT {
 		}
 		
 		in.close();
+		
+
+		Util.wait(2);
+		
+		MySocket.send(ports.get(Util.getRandom(0, ports.size()-1)), "INIT,QUERY,*");
+		
+		Util.wait(2);
+		
+		MySocket JoinSocket = new MySocket(ports.get(0));
+		JoinSocket.write("INIT,DEPART,"+Util.hash(""+5)+","+ports.get(5-1));
+		JoinSocket.close();
+		
+		Util.wait(2);
 		
 		MySocket.send(ports.get(Util.getRandom(0, ports.size()-1)), "INIT,QUERY,*");
 	} 

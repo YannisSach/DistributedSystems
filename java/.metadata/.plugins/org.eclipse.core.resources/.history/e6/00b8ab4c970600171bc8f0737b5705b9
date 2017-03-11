@@ -1,0 +1,11 @@
+
+public class ChainServer extends Server{
+	public int k;
+	
+	
+	public ChainServer (int idx, int myId,int MyPort,int k){
+		super(idx, myId,MyPort);
+		this.k = k;
+	}
+
+}
