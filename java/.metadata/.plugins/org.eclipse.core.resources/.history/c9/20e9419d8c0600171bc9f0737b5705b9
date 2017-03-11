@@ -20,12 +20,10 @@ public class Bucket extends ArrayList<Song>{
 			this.add(s);
 		}
 		else{
-			Song updated = this.get(i);
-			updated.Val = s.Val;
-		
-			if (updated.getClass() == ReplicaSong.class){
-				((ReplicaSong) updated).distance = ((ReplicaSong) s).distance;
-			}
+			this.get(i).Val = s.Val;
+		}
+		if (s.getClass() == ReplicaSong.class){
+			
 		}
 	}
 

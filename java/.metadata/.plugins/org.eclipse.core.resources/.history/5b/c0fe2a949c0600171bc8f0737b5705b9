@@ -102,12 +102,12 @@ public class ChainServer extends Server{
 		int distance = Integer.parseInt(requestLst[INSK]);
 		if (distance < k){
 			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],distance));//fst replica
-			if (distance == k-1)
-				MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
-			MySocket.send(this.nextPort, "" + srcPort+ ",INSERT_R,"+requestLst[KEY]+","+requestLst[VAL]+","+(distance+1));			
+			if (distance < k-1)
+				MySocket.send(this.nextPort, "" + srcPort+ ",INSERT_R,"+requestLst[KEY]+","+requestLst[VAL]+","+distance+1);
+			MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);				
 		}
 		else if (distance == k){
-			this.delete(new ReplicaSong(requestLst[KEY],null,-1));
+			this.delete(new ReplicaSong(requestLst[KEY],requestLst[VAL],distance);
 		}
 	
 	}

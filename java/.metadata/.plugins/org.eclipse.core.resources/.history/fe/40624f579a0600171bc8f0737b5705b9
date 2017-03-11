@@ -1,0 +1,43 @@
+
+public class ChainServer extends Server{
+	public static int k,INSK=4;
+	
+	
+	public ChainServer (int idx, int myId,int MyPort,int k){
+		super(idx, myId,MyPort);
+		ChainServer.k = k;
+	}
+	
+	//@Override
+	
+	
+	
+
+	@Override
+	public void insertRequest(String[] requestLst){
+		int hashed = Util.hash(requestLst[KEY]);
+		int srcPort = Integer.parseInt(requestLst[SRC]);
+		if (isBetween(hashed,this.prevId,this.myId)){
+			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],0));//fst replica
+			MySocket.send(this.nextPort, "" + srcPort+ ",INSERT_R,"+requestLst[KEY]+","+requestLst[VAL]+","+1);
+		}
+		else{
+			MySocket.send(this.nextPort,requestLst[SRC] + ",INSERT," + requestLst[KEY] + "," + requestLst[VAL]);
+		}
+	}
+	
+	public void insertReplica(String[] requestLst){;
+		int srcPort = Integer.parseInt(requestLst[SRC]);
+		int distance = Integer.parseInt(requestLst[INSK]);
+		if (distance < k){
+			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],distance));//fst replica
+			if (distance < k-1)
+				MySocket.send(this.nextPort, "" + srcPort+ ",INSERT_R,"+requestLst[KEY]+","+requestLst[VAL]+","+distance+1);
+			else
+				MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
+				
+		}
+	
+	}
+
+}
