@@ -1,6 +1,7 @@
 import java.net.*;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.io.*;
 
 
@@ -118,6 +119,7 @@ public class Server extends Thread{
 			MySocket.send(this.nextPort, ""+this.myPort+",CONNECT," + this.prevId + "," + this.prevPort + ",PREV");
 			MySocket.send(this.prevPort, ""+this.myPort+",CONNECT," + this.nextId + "," + this.nextPort + ",NEXT");
 			this.TransferAll();
+			//print("TranferAll == Depart");
 			departed = true;
 		}
 		else {
@@ -162,7 +164,7 @@ public class Server extends Thread{
 			if (nextPort == 0){ //i am a new node that has to connect to the chord
 				this.nextPort = Integer.parseInt(requestLst[PORT]);
 				this.nextId = Integer.parseInt(requestLst[ID]);
-				MySocket.send(this.nextPort, ""+this.myPort+ ",CONNECT," + this.myId + "," + this.myId+",PREV");
+				MySocket.send(this.nextPort, ""+this.myPort+ ",CONNECT," + this.myId + "," + this.myPort+",PREV");
 				
 			}
 			else{ //my next node departs
@@ -173,23 +175,29 @@ public class Server extends Thread{
 		}
 		else if (requestLst[CON].equals("PREV")){
 			int SrcPort = Integer.parseInt(requestLst[SRC]);
+			//print("SRCPORT: " + SrcPort + " prevport: " + this.prevPort);
 			if (SrcPort == this.prevPort){		//previous node departs
 				this.prevPort = Integer.parseInt(requestLst[PORT]);
 				this.prevId = Integer.parseInt(requestLst[ID]);
 			}
-			else{ //new previous node
+			else{ //new node is previous
+				//print(""+this.prevId);
 				this.prevPort = Integer.parseInt(requestLst[PORT]);
 				this.prevId = Integer.parseInt(requestLst[ID]);
-				TransferSome();
+				//print(""+this.prevId);
+				this.TransferSome();
 			}
 		}
 	}
 	
 	
 	public void TransferSome(){
+		//print("TransferSome");
 		Collection<Bucket> bc = buckets.values();
 		int port = this.prevPort;
-		for(Bucket b : bc){
+		Iterator<Bucket> iter = (bc).iterator();
+		while(iter.hasNext()){
+			Bucket b = iter.next();
 			if (!isBetween(b.HashedKey,this.prevId,this.myId)){
 				for(Song s : b){
 					MySocket.send(port, ""+this.myPort+",INSERT,"+""+s.Key+","+s.Val);
@@ -271,10 +279,10 @@ public class Server extends Thread{
 			String val = query(new Song(requestLst[KEY], null));
 			//Send response to requester
 			if(val == null){
-				MySocket.send(port,requestLst[SRC] + ",NOT_FOUND," + requestLst[KEY]);
+				MySocket.send(port,""+this.myId + ",NOT_FOUND," + requestLst[KEY]);
 			}
 			else{ 
-				MySocket.send(port, requestLst[SRC] + ",FOUND," + requestLst[KEY] + "," + val);
+				MySocket.send(port, ""+this.myId + ",FOUND," + requestLst[KEY] + "," + val);
 			}
 			
 		}
@@ -289,11 +297,9 @@ public class Server extends Thread{
 		int port = Integer.parseInt(requestLst[SRC]);
 		for(Bucket b : bc){
 			for(Song s : b){
-				MySocket cl = new MySocket(port);
 				//send to next node
 				//print(requestLst[SRC] + ",FOUND," + s.Key + "," + s.Val);
-				cl.write("" + this.myId + ",FOUND," + s.Key + "," + s.Val);
-				cl.close();
+				MySocket.send(port, "" + this.myId + ",FOUND," + s.Key + "," + s.Val);
 			}
 		}
 		if (port != this.nextPort){
@@ -326,15 +332,14 @@ public class Server extends Thread{
 			delete(new Song(requestLst[KEY], null));
 		}
 		else{
-			MySocket cl = new MySocket(this.nextPort);
-			//send to next node
-			cl.write(requestLst[SRC] + ",DELETE," + requestLst[KEY]);
-			cl.close();
+			MySocket.send(this.nextPort, requestLst[SRC] + ",DELETE," + requestLst[KEY]);;
 		}
 	}
 	
 	public void delete(Song song){
 		Bucket bucket = buckets.get(song.Key);
+		if (bucket == null)
+			return;
 		int i = bucket.indexOf(song);
 		if(i == -1){
 			return;

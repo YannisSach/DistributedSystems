@@ -7,4 +7,5 @@
 <fullyQualifiedTypeName name="java.util.Collection"/>
 <fullyQualifiedTypeName name="java.util.Random"/>
 <fullyQualifiedTypeName name="MySocket"/>
+<fullyQualifiedTypeName name="ReplicaSong"/>
 </qualifiedTypeNameHistroy>

@@ -1,13 +1,14 @@
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Collection;
 
 public class ChainServer extends Server{
-	public static int k,INSK=4;
+	public static int k=Util.k,INSK=4,DELK=3;
 	
 	
-	public ChainServer (int idx, int myId,int MyPort,int k){
+	public ChainServer (int idx, int myId,int MyPort){
 		super(idx, myId,MyPort);
-		ChainServer.k = k;
+		//ChainServer.k = k;
 	}
 	
 	@Override
@@ -70,6 +71,9 @@ public class ChainServer extends Server{
 		    else if (requestLst[CMD].equals("DELETE")){
 		    	deleteRequest(requestLst);
 		    }
+		    else if (requestLst[CMD].equals("DELETE_R")){
+		    	this.deleteReplica(requestLst);
+		    }
 		    else if (requestLst[CMD].equals("INSERTED")){
 		    	this.print(request + " Hash of song:" + Util.hash(requestLst[KEY]));
 		    }
@@ -82,7 +86,31 @@ public class ChainServer extends Server{
 	    
 	}
 	
+	@Override
+	public void deleteRequest(String[] requestLst){
+		int hashed = Util.hash(requestLst[KEY]);
+		int srcPort = Integer.parseInt(requestLst[SRC]);
+		if (isBetween(hashed,this.prevId,this.myId)){
+			delete(new ReplicaSong(requestLst[KEY], null,-1));
+			MySocket.send(this.nextPort, "" + srcPort+ "DELETE_R"+requestLst[KEY]+","+1);
+		}
+		else{
+			MySocket.send(this.nextPort, requestLst[SRC] + ",DELETE," + requestLst[KEY]);
+		}
+	}
 	
+	public void deleteReplica(String[] requestLst){
+		int srcPort = Integer.parseInt(requestLst[SRC]);
+		int distance = Integer.parseInt(requestLst[DELK]);
+		if (distance < k){
+			delete(new ReplicaSong(requestLst[KEY],null,-1));//fst replica
+			if (distance == k-1)//last replica node
+				MySocket.send(srcPort, "" + this.myId + ",DELETED,"+requestLst[KEY]);
+			else 
+				MySocket.send(this.nextPort, "" + srcPort+ ",DELETE_R,"+requestLst[KEY]+","+(distance+1));			
+		}
+		
+	}
 
 	@Override
 	public void insertRequest(String[] requestLst){
@@ -111,5 +139,67 @@ public class ChainServer extends Server{
 		}
 	
 	}
+	
+	@Override
+	public void queryRequest(String[] requestLst){
+		int hashed = Util.hash(requestLst[KEY]);
+		//if (isBetween(hashed,this.prevId,this.myId)){
+		int port = Integer.parseInt(requestLst[SRC]);
+		String val = query(new ReplicaSong(requestLst[KEY], null,-1));
+		//Send response to requester
+		if(val == null){
+			if (this.nextPort == port)
+				MySocket.send(port,""+this.myPort + ",NOT_FOUND," + requestLst[KEY]);
+			else
+				MySocket.send(this.nextPort,requestLst[SRC] + ",QUERY," + requestLst[KEY]);
+		}
+		else{ 
+			MySocket.send(port, ""+this.myPort + ",FOUND," + requestLst[KEY] + "," + val);
+		}
+			
+	}
+	
+	@Override
+	public void queryStarRequest(String[] requestLst){
+		Collection<Bucket> bc = buckets.values();
+		int port = Integer.parseInt(requestLst[SRC]);
+		for(Bucket b : bc){
+			for(Song s : b){
+				ReplicaSong rs = ((ReplicaSong)s);
+				//send to next node
+				//print(requestLst[SRC] + ",FOUND," + s.Key + "," + s.Val);
+				if (rs.distance == k-1)
+					MySocket.send(port, "" + this.myId + ",FOUND," + s.Key + "," + s.Val);
+			}
+		}
+		if (port != this.nextPort){
+			MySocket.send(this.nextPort, requestLst[SRC] + ",QUERY,*");
+		}
+		
+	}
+
+	public String query(ReplicaSong song){
+		
+		Bucket bucket = buckets.get(song.Key);
+		int i = bucket.indexOf(song);
+		String songVal = null;
+		int dist = song.distance;
+		if(i == -1 ){//this will work if OR is short-cirquited
+		}
+		else{
+			ReplicaSong s = ((ReplicaSong) bucket.get(i));
+			if (s.distance == k-1)
+				songVal = s.Val;
+		}
+		
+		return songVal;
+	
+		//send answer to the requester
+			
+	}
+	
+
+
+	
 
 }

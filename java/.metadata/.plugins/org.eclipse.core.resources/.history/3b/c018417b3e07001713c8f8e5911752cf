@@ -1,0 +1,9 @@
+
+public class LazyServer extends ChainServer{
+	
+	public LazyServer (int idx, int myId,int MyPort){
+		super(idx, myId,MyPort);
+		//ChainServer.k = k;
+	}
+
+}

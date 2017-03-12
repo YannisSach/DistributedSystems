@@ -21,7 +21,7 @@ public class DHT {
 		ports.add(Util.getPort());
 		//for (int i=0; i<10; i++)
 			//Util.debug("" + i +": " + Util.hash(""+i));
-		Server mys = new Server(1,Util.hash("1"),ports.get(0));
+		Server mys = new LazyServer(1,Util.hash("1"),ports.get(0));
 		mys.start();
 		//MySocket JoinSocket = new MySocket(port.get(0));
 		
@@ -29,7 +29,7 @@ public class DHT {
 		for (int i=2; i<7; i++ ){
 			MySocket JoinSocket = new MySocket(ports.get(0));
 			ports.add(Util.getPort());
-			Server s = new Server(i,Util.hash(""+i),ports.get(i-1));
+			Server s = new LazyServer(i,Util.hash(""+i),ports.get(i-1));
 			s.start();
 			JoinSocket.write("INIT,JOIN,"+Util.hash(""+i)+","+ports.get(i-1));
 			JoinSocket.close();
@@ -59,9 +59,7 @@ public class DHT {
 		
 		Util.wait(2);
 		
-		MySocket JoinSocket = new MySocket(ports.get(0));
-		JoinSocket.write("INIT,DEPART,"+Util.hash(""+5)+","+ports.get(5-1));
-		JoinSocket.close();
+		MySocket.send(ports.get(0), "INIT,DEPART,"+Util.hash(""+5)+","+ports.get(5-1));
 		
 		Util.wait(2);
 		

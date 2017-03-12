@@ -12,6 +12,7 @@ public class Util {
 	public static int port = 23700;
 	public static boolean debug = false;
 	public static int ChordSize = 1000;
+	public static int k = 3;
 	
 	public static int hash(String key){
 		String hashString =  generateSHA1(key);

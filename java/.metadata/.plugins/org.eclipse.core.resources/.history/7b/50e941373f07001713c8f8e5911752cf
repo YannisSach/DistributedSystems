@@ -1,0 +1,51 @@
+import java.util.Collection;
+
+public class LazyServer extends ChainServer{
+	
+	public LazyServer (int idx, int myId,int MyPort){
+		super(idx, myId,MyPort);
+		//ChainServer.k = k;
+	}
+	
+	
+	@Override
+	public void queryStarRequest(String[] requestLst){
+		Collection<Bucket> bc = buckets.values();
+		int port = Integer.parseInt(requestLst[SRC]);
+		for(Bucket b : bc){
+			for(Song s : b){
+				ReplicaSong rs = ((ReplicaSong)s);
+				//send to next node
+				//print(requestLst[SRC] + ",FOUND," + s.Key + "," + s.Val);
+				if (rs.distance == k-1)
+					MySocket.send(port, "" + this.myId + ",FOUND," + s.Key + "," + s.Val);
+			}
+		}
+		if (port != this.nextPort){
+			MySocket.send(this.nextPort, requestLst[SRC] + ",QUERY,*");
+		}
+		
+	}
+	
+	@Override
+	public String query(ReplicaSong song){
+		
+		Bucket bucket = buckets.get(song.Key);
+		int i = bucket.indexOf(song);
+		String songVal = null;
+		int dist = song.distance;
+		if(i == -1 ){//this will work if OR is short-cirquited
+		}
+		else{
+			ReplicaSong s = ((ReplicaSong) bucket.get(i));
+			if (s.distance <= k-1)
+				songVal = s.Val;
+		}
+		
+		return songVal;
+	
+		//send answer to the requester
+			
+	}
+
+}
