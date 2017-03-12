@@ -1,0 +1,11 @@
+
+public class Metric {
+	
+	public long time;
+	public long lines;
+	public Metric(long time, long lines){
+		this.time = time/1000;
+		this.lines = lines;
+	}
+
+}

@@ -13,7 +13,6 @@ public class ChainServer extends Server{
 	
 	@Override
 	public void run() {
-		System.out.println("Hello from a thread: " + myId);
 		Socket serviceSocket = null;
 		
 		while (true) {
@@ -76,6 +75,7 @@ public class ChainServer extends Server{
 		    }
 		    else if (requestLst[CMD].equals("INSERTED")){
 		    	this.print(request + " Hash of song:" + Util.hash(requestLst[KEY]));
+		    	Util.inserts.decrementAndGet();
 		    }
 		    else if (requestLst[CMD].equals("FOUND")){
 		    	this.print(request);

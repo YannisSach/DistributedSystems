@@ -1,5 +1,7 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.*;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -9,10 +11,14 @@ import java.math.*;
 public class Util {
 	
 	public static ReentrantLock l = new ReentrantLock();
-	public static int port = 23700;
-	public static boolean debug = false;
+	public static int port = 10000;
+	public static boolean debug = false,prints=false;
 	public static int ChordSize = 1000;
 	public static int k = 3;
+	public static AtomicInteger inserts = new AtomicInteger(0);
+	
+	
+	public static int SIMPLE=0, CHAIN=1, LAZY=2;
 	
 	public static int hash(String key){
 		String hashString =  generateSHA1(key);
@@ -78,6 +84,22 @@ public class Util {
 		int i = Math.abs(rn.nextInt()) % n;
 		int randomNum =  minimum + i;
 		return randomNum;
+	}
+	
+	public static Server getServer (int ServerType,int i,int j,ArrayList<Integer> ports){
+		Server s;
+		switch (ServerType){
+			case 0: 	s = new Server(i,Util.hash(""+i),ports.get(j));
+						break;
+			case 1: 	s = new ChainServer(i,Util.hash(""+i),ports.get(j));
+						break;
+			case 2:		s = new LazyServer(i,Util.hash(""+i),ports.get(j));
+						break;
+			default:	s = null;	
+						break;
+			
+		}
+		return s;
 	}
 	
 }

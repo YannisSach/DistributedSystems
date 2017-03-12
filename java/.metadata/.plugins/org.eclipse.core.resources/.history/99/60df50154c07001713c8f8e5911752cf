@@ -1,0 +1,21 @@
+import java.net.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+public class DHT {
+
+	
+	public static void main (String[] args) throws IOException{
+		Simulation.debug(Util.SIMPLE);
+		
+		for (int ServerType = Util.SIMPLE; ServerType <= Util.LAZY; ServerType++){
+			Metric k3 = Simulation.Case1(ServerType, 3);
+			Metric k5 = Simulation.Case1(ServerType, 5);
+			
+		}
+		
+		
+	}
+
+}

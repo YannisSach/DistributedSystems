@@ -44,7 +44,6 @@ public class Server extends Thread{
 	}
 	
 	public void run() {
-		System.out.println("Hello from a thread: " + myId);
 		Socket serviceSocket = null;
 		
 		while (true) {
@@ -101,9 +100,13 @@ public class Server extends Thread{
 		    }
 		    else if (requestLst[CMD].equals("INSERTED")){
 		    	this.print(request + " Hash of song:" + Util.hash(requestLst[KEY]));
+		    	Util.inserts.decrementAndGet();
 		    }
 		    else if (requestLst[CMD].equals("FOUND")){
 		    	this.print(request);
+		    }
+		    else if (requestLst[CMD].equals("DIE")){
+		    	return;
 		    }
 			
 		}
@@ -230,7 +233,7 @@ public class Server extends Thread{
 	
 	public void print(String msg){
 		
-		if (true)
+		if (Util.prints)
 			System.out.println("" + idx + "(" + myId + "): " + msg);
 	}
 	
