@@ -69,6 +69,7 @@ public class Server extends Thread{
 		    String[] requestLst = request.split(",");
 		    //got request
 		    boolean isFirst = false;
+		  
 		    
 		    if (requestLst[SRC].equals("INIT")){
 		    	isFirst = true;
@@ -99,14 +100,18 @@ public class Server extends Thread{
 		    	deleteRequest(requestLst);
 		    }
 		    else if (requestLst[CMD].equals("INSERTED")){
-		    	this.print(request + " Hash of song:" + Util.hash(requestLst[KEY]));
-		    	Util.inserts.decrementAndGet();
-		    }
-		    else if (requestLst[CMD].equals("FOUND")){
-		    	this.print(request);
+		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
+		    	//Util.inserts.decrementAndGet();
 		    }
 		    else if (requestLst[CMD].equals("DIE")){
 		    	return;
+		    }
+		    else if (requestLst[CMD].equals("FOUND")){
+		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
+		    }
+		    else if (requestLst[CMD].equals("NOT_FOUND")){
+		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]);
+		    	
 		    }
 			
 		}
@@ -237,6 +242,12 @@ public class Server extends Thread{
 			System.out.println("" + idx + "(" + myId + "): " + msg);
 	}
 	
+	public void printQueryAnswer (String msg){
+		
+		if (Util.printQueryAnswer)
+			System.out.println(msg);
+	}
+	
 	public static boolean isBetween (int key, int low, int high) {
 	    if (low <= high) {
 	        return low < key && key <= high;
@@ -269,6 +280,7 @@ public class Server extends Thread{
 		if (isBetween(hashed,this.prevId,this.myId)){
 			insert(new Song(requestLst[KEY],requestLst[VAL]));
 			MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
+			Util.inserts.decrementAndGet();
 		}
 		else{
 			MySocket.send(this.nextPort,requestLst[SRC] + ",INSERT," + requestLst[KEY] + "," + requestLst[VAL]);
@@ -283,9 +295,11 @@ public class Server extends Thread{
 			//Send response to requester
 			if(val == null){
 				MySocket.send(port,""+this.myId + ",NOT_FOUND," + requestLst[KEY]);
+				Util.inserts.decrementAndGet();
 			}
 			else{ 
 				MySocket.send(port, ""+this.myId + ",FOUND," + requestLst[KEY] + "," + val);
+				Util.inserts.decrementAndGet();
 			}
 			
 		}
@@ -313,12 +327,16 @@ public class Server extends Thread{
 	
 	public String query(Song song){
 		
-		Bucket bucket = buckets.get(song.Key);
+		Bucket bucket = buckets.get(Util.hash(song.Key));
+		if (bucket == null)
+			return null;
+		
 		int i = bucket.indexOf(song);
 		String songVal = null;
 		if(i == -1){
 		}
 		else{
+			
 			songVal = bucket.get(i).Val;
 		}
 		
@@ -340,7 +358,7 @@ public class Server extends Thread{
 	}
 	
 	public void delete(Song song){
-		Bucket bucket = buckets.get(song.Key);
+		Bucket bucket = buckets.get(Util.hash(song.Key));
 		if (bucket == null)
 			return;
 		int i = bucket.indexOf(song);

@@ -8,7 +8,8 @@ public class ChainServer extends Server{
 	
 	public ChainServer (int idx, int myId,int MyPort){
 		super(idx, myId,MyPort);
-		//ChainServer.k = k;
+		
+		ChainServer.k = Util.k;
 	}
 	
 	@Override
@@ -74,11 +75,18 @@ public class ChainServer extends Server{
 		    	this.deleteReplica(requestLst);
 		    }
 		    else if (requestLst[CMD].equals("INSERTED")){
-		    	this.print(request + " Hash of song:" + Util.hash(requestLst[KEY]));
-		    	Util.inserts.decrementAndGet();
+		    	//this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
+		    	//Util.inserts.decrementAndGet();
 		    }
 		    else if (requestLst[CMD].equals("FOUND")){
-		    	this.print(request);
+		    	//this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
+		    }
+		    else if (requestLst[CMD].equals("NOT_FOUND")){
+		    	//this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]);
+		    	
+		    }
+		    else if (requestLst[CMD].equals("DIE")){
+		    	return;
 		    }
 			
 		}
@@ -130,8 +138,11 @@ public class ChainServer extends Server{
 		int distance = Integer.parseInt(requestLst[INSK]);
 		if (distance < k){
 			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],distance));//fst replica
-			if (distance == k-1)
+			if (distance == k-1){
 				MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
+				this.printQueryAnswer("inserted" + ","+requestLst[KEY]+","+requestLst[VAL]);
+				Util.inserts.decrementAndGet();
+			}
 			MySocket.send(this.nextPort, "" + srcPort+ ",INSERT_R,"+requestLst[KEY]+","+requestLst[VAL]+","+(distance+1));			
 		}
 		else if (distance == k){
@@ -148,13 +159,18 @@ public class ChainServer extends Server{
 		String val = query(new ReplicaSong(requestLst[KEY], null,-1));
 		//Send response to requester
 		if(val == null){
-			if (this.nextPort == port)
+			if (this.nextPort == port){
 				MySocket.send(port,""+this.myPort + ",NOT_FOUND," + requestLst[KEY]);
+				this.printQueryAnswer("not found" + ","+requestLst[KEY]);
+				Util.inserts.decrementAndGet();
+			}
 			else
 				MySocket.send(this.nextPort,requestLst[SRC] + ",QUERY," + requestLst[KEY]);
 		}
 		else{ 
 			MySocket.send(port, ""+this.myPort + ",FOUND," + requestLst[KEY] + "," + val);
+			this.printQueryAnswer("found" + ","+requestLst[KEY] + ","+val);
+			Util.inserts.decrementAndGet();
 		}
 			
 	}
@@ -180,7 +196,9 @@ public class ChainServer extends Server{
 
 	public String query(ReplicaSong song){
 		
-		Bucket bucket = buckets.get(song.Key);
+		Bucket bucket = buckets.get(Util.hash(song.Key));
+		if (bucket == null)
+			return null;
 		int i = bucket.indexOf(song);
 		String songVal = null;
 		int dist = song.distance;

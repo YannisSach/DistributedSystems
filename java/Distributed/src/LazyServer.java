@@ -12,7 +12,9 @@ public class LazyServer extends ChainServer{
 	@Override
 	public String query(ReplicaSong song){
 		
-		Bucket bucket = buckets.get(song.Key);
+		Bucket bucket = buckets.get(Util.hash(song.Key));
+		if (bucket == null)
+			return null;
 		int i = bucket.indexOf(song);
 		String songVal = null;
 		int dist = song.distance;

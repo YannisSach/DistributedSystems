@@ -11,10 +11,10 @@ import java.math.*;
 public class Util {
 	
 	public static ReentrantLock l = new ReentrantLock();
-	public static int port = 10000;
-	public static boolean debug = false,prints=false;
-	public static int ChordSize = 1000;
-	public static int k = 3;
+	public static int port = 24000;
+	public static boolean debug = false,prints=false,printQueryAnswer=false;
+	public static int ChordSize = 10000;
+	public static int k;
 	public static AtomicInteger inserts = new AtomicInteger(0);
 	
 	
@@ -77,6 +77,17 @@ public class Util {
 	           System.out.println(e);
 	    }
 	}
+	
+	public static void waitms(int msec){
+		try {
+			//System.out.println("Going to sleep");
+			TimeUnit.MICROSECONDS.sleep(msec);
+		}
+		catch (Exception e) {
+	           System.out.println(e);
+	    }
+	}
+	
 	
 	public static int getRandom(int minimum, int maximum){
 		Random rn = new Random();

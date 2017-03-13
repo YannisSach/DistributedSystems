@@ -9,13 +9,17 @@ public class MySocket{
 	public MySocket(int port){
 		this.myPort = port;
 		Socket MyClient=null;
+		//int c=0;
 		while (true){
+			//if (c>0)
+			//	System.out.println("11111");
 			try {
 				MyClient = new Socket("localhost", port);
 				break;
 			}
 			catch (IOException e) {
 				System.out.println(e);
+			//	c++;
 				continue;
 			}	    
 		}

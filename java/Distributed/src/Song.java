@@ -15,7 +15,7 @@ public class Song {
 	
 	@Override
 	public boolean equals(Object o){
-		return this.Key == ((Song) o).Key;
+		return this.Key.equals(((Song) o).Key);
 		
 	}
 }
