@@ -4,7 +4,7 @@ public class LazyServer extends ChainServer{
 	
 	public LazyServer (int idx, int myId,int MyPort){
 		super(idx, myId,MyPort);
-		LazyServer.k = Util.k;
+		ChainServer.k = k;
 	}
 	
 	
@@ -22,7 +22,7 @@ public class LazyServer extends ChainServer{
 		}
 		else{
 			ReplicaSong s = ((ReplicaSong) bucket.get(i));
-			if (s.distance <= LazyServer.k-1)///////////////////////////////////answers for a replica
+			if (s.distance <= k-1)///////////////////////////////////answers for a replica
 				songVal = s.Val;
 		}
 		
