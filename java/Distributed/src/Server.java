@@ -211,7 +211,7 @@ public class Server extends Thread{
 					MySocket.send(port, ""+this.myPort+",INSERT,"+""+s.Key+","+s.Val);
 				}
 				//this.buckets.remove(b.HashedKey); not needed since it will exit
-				buckets.remove(b.HashedKey);
+				iter.remove();
 			}
 
 		}
