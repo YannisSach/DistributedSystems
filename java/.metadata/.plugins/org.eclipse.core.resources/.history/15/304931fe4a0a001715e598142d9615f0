@@ -1,5 +1,4 @@
 import java.net.*;
-import java.util.Collection;
 import java.io.*;
 
 
@@ -28,8 +27,6 @@ public class MySocket{
 		
 	}
 	
-	
-
 	
 	
 	

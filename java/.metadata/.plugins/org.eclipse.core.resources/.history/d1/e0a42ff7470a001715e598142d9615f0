@@ -137,13 +137,17 @@ public class Simulation {
 		
 		
 		lines=0;
+		int cnt = 0;
 		while((line = in2.readLine()) != null)
 		{
 			lines++;
 			//if(lines> 10 ) break;
 			int randPort = ports.get(Util.getRandom(0, ports.size()-1));
 		    MySocket.send(randPort, formalizeQueries(line));
-		    Util.waitms(10);
+		    if (cnt++ == 9){
+		    	Util.waitms(10);
+		    	cnt = 0;
+		    }
 		    Util.inserts.incrementAndGet();
 			
 		}
@@ -171,79 +175,6 @@ public class Simulation {
 		
 		return (new Metric(endTime-startTime,lines));
 		
-		
-	}
-	
-	
-	public static void Test (int ServerType,int k ) throws IOException{
-		ArrayList<Integer> ports = new ArrayList<Integer>();
-
-		ServerSocket serv=null;
-		ports.add(Util.getPort());
-		//for (int i=0; i<10; i++)
-			//Util.debug("" + i +": " + Util.hash(""+i));
-		Server mys = Util.getServer(ServerType, 1,0, ports,k);
-		mys.start();
-		//MySocket JoinSocket = new MySocket(port.get(0));
-		
-		
-		for (int i=2; i<=10; i++ ){
-			ports.add(Util.getPort());
-			Server s = Util.getServer(ServerType, i, i-1,ports,k);
-			s.start();
-			MySocket.send(ports.get(0), "INIT,JOIN,"+Util.hash(""+i)+","+ports.get(i-1));
-		}
-		Util.wait(1);
-		
-		
-		
-		int randPort = ports.get(Util.getRandom(0, ports.size()-1));
-	    MySocket.send(randPort, "INIT,INSERT,You don't match I tell you,156");
-	    
-	    Util.wait(1);
-		
-	    for (int i=1; i<=10; i++){
-			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
-		}
-	    
-		Util.wait(1);
-		
-		Util.printQueryAnswer = true;
-		Util.prints = true;
-		
-		randPort = ports.get(Util.getRandom(0, ports.size()-1));
-		MySocket.send(randPort, "INIT,QUERY,You don't match I tell you");
-		
-		
-		Util.wait(1);
-
-		Util.printQueryAnswer = false;
-		Util.prints = false;
-		
-		randPort = ports.get(Util.getRandom(0, ports.size()-1));
-		MySocket.send(randPort, "INIT,DEPART," + Util.hash("5") );
-		
-		Util.wait(1);
-		
-		
-		for (int i=1; i<=10; i++){
-			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
-		}
-		
-		Util.wait(1);
-		
-		ports.add(Util.getPort());
-		Server s = Util.getServer(ServerType, 11, 11-1,ports,k);
-		s.start();
-		MySocket.send(ports.get(0), "INIT,JOIN,"+Util.hash(""+11)+","+ports.get(11-1));
-		
-		
-		Util.wait(1);
-		
-		
-		for (int i=1; i<=11; i++){
-			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
-		}
 		
 	}
 	

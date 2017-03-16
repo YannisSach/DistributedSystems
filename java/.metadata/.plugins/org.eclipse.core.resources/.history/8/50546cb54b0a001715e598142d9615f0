@@ -81,7 +81,7 @@ public class ChainServer extends Server{
 		    	//Util.inserts.decrementAndGet();
 		    }
 		    else if (requestLst[CMD].equals("FOUND")){
-		    	this.print(""+ requestLst[SRC] + " " + requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
+		    	//this.printQueryAnswer(""+ requestLst[SRC] + " " + requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
 		    }
 		    else if (requestLst[CMD].equals("NOT_FOUND")){
 		    	//this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]);

@@ -108,33 +108,15 @@ public class Server extends Thread{
 		    }
 		    else if (requestLst[CMD].equals("FOUND")){
 		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
-		    	this.print(""+ requestLst[SRC] + " " + requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
 		    }
 		    else if (requestLst[CMD].equals("NOT_FOUND")){
 		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]);
 		    	
 		    }
-		    else if (requestLst[CMD].equals("PRINT_N")){
-		    	System.out.println(this);
-		    }
 			
 		}
 	    
 	    
-	}
-	
-	
-	@Override 
-	public String toString(){
-		Collection<Bucket> bc = buckets.values();
-		String prefix  = ""+ this.idx + "(" + this.myId + ")" + "Next:" + this.nextPort + " " + this.nextId + "Prev:" + this.prevPort + " " + this.prevId;
-		for (Bucket b : bc){
-			for (Song sg : b){
-				prefix += "\n" + this.myId + ":" + sg.Key + " " + sg.Val ;
-				
-			}
-		}
-		return prefix;
 	}
 	
 	public void DepartRequest (String[] requestLst) {

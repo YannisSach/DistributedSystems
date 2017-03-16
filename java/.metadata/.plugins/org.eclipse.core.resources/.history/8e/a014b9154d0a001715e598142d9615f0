@@ -216,32 +216,13 @@ public class Simulation {
 		
 		
 		Util.wait(1);
-
-		Util.printQueryAnswer = false;
-		Util.prints = false;
 		
 		randPort = ports.get(Util.getRandom(0, ports.size()-1));
-		MySocket.send(randPort, "INIT,DEPART," + Util.hash("5") );
+		MySocket.send(randPort, "INIT,DEPART," + Util.hash("1") );
 		
 		Util.wait(1);
-		
 		
 		for (int i=1; i<=10; i++){
-			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
-		}
-		
-		Util.wait(1);
-		
-		ports.add(Util.getPort());
-		Server s = Util.getServer(ServerType, 11, 11-1,ports,k);
-		s.start();
-		MySocket.send(ports.get(0), "INIT,JOIN,"+Util.hash(""+11)+","+ports.get(11-1));
-		
-		
-		Util.wait(1);
-		
-		
-		for (int i=1; i<=11; i++){
 			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
 		}
 		

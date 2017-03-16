@@ -29,7 +29,20 @@ public class MySocket{
 	}
 	
 	
-
+	@Override 
+	public String toString(){
+		Collection<Bucket> bc = buckets.values();
+		String prefix  = ""+ this.idx + "(" + this.myId + ")" + "Next:" + this.nextPort + " " + this.nextId + "Prev:" + this.prevPort + " " + this.prevId;
+		for (Bucket b : bc){
+			for (Song sg : b){
+				ReplicaSong rs = (ReplicaSong) sg;
+				prefix += "\n" + this.myId + ":" + rs.Key + " " + rs.Val + " " + rs.distance;
+				
+			}
+		}
+		return prefix;
+	}
+	
 	
 	
 	

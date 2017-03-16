@@ -108,7 +108,6 @@ public class Server extends Thread{
 		    }
 		    else if (requestLst[CMD].equals("FOUND")){
 		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
-		    	this.print(""+ requestLst[SRC] + " " + requestLst[CMD].toLowerCase() + ","+requestLst[KEY]+","+requestLst[VAL]);
 		    }
 		    else if (requestLst[CMD].equals("NOT_FOUND")){
 		    	this.printQueryAnswer(requestLst[CMD].toLowerCase() + ","+requestLst[KEY]);

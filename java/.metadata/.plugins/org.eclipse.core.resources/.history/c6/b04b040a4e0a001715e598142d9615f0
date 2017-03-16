@@ -221,7 +221,7 @@ public class Simulation {
 		Util.prints = false;
 		
 		randPort = ports.get(Util.getRandom(0, ports.size()-1));
-		MySocket.send(randPort, "INIT,DEPART," + Util.hash("5") );
+		MySocket.send(randPort, "INIT,DEPART," + Util.hash("1") );
 		
 		Util.wait(1);
 		
