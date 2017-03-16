@@ -377,19 +377,16 @@ public class Server extends Thread{
 	
 	public void delete(Song song){
 		Bucket bucket = buckets.get(Util.hash(song.Key));
-		if (bucket == null){
-			//System.out.println("not");
+		if (bucket == null)
 			return;
-		}
 		int i = bucket.indexOf(song);
 		if(i == -1){
-			//System.out.println("not");
 			return;
-			
+			System.out.println("not");
 		}
 		else{
 			bucket.remove(i);
-			//System.out.println("deleted");
+			System.out.println("deleted");
 		}
 	}
 	

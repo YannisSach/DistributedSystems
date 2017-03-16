@@ -254,14 +254,6 @@ public class Simulation {
 	    
 		Util.wait(1);
 		
-
-		for (int i=1; i<=11; i++){
-			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
-		}
-		
-		Util.wait(1);
-		
-		
 		Util.printQueryAnswer = true;
 		Util.prints = true;
 		

@@ -121,7 +121,7 @@ public class ChainServer extends Server{
 		int srcPort = Integer.parseInt(requestLst[SRC]);
 		if (isBetween(hashed,this.prevId,this.myId)){
 			delete(new ReplicaSong(requestLst[KEY], null,-1));
-			MySocket.send(this.nextPort, "" + srcPort+ ",DELETE_R,"+requestLst[KEY]+","+1);
+			MySocket.send(this.nextPort, "" + srcPort+ "DELETE_R"+requestLst[KEY]+","+1);
 		}
 		else{
 			MySocket.send(this.nextPort, requestLst[SRC] + ",DELETE," + requestLst[KEY]);

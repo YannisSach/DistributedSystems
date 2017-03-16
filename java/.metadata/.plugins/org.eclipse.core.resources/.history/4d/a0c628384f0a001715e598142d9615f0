@@ -248,24 +248,16 @@ public class Simulation {
 		Util.wait(1);
 		
 
-		randPort = ports.get(Util.getRandom(0,1));
+		randPort = ports.get(Util.getRandom(0, ports.size()-1));
 	    MySocket.send(randPort, "INIT,DELETE,You don't match I tell you,231");
 	    
 	    
 		Util.wait(1);
 		
-
-		for (int i=1; i<=11; i++){
-			MySocket.send(ports.get(i-1), "dummy,PRINT_N");
-		}
-		
-		Util.wait(1);
-		
-		
 		Util.printQueryAnswer = true;
 		Util.prints = true;
 		
-		randPort = ports.get(Util.getRandom(0, 1));
+		randPort = ports.get(Util.getRandom(0, ports.size()-1));
 		MySocket.send(randPort, "INIT,QUERY,You don't match I tell you");
 		
 		
