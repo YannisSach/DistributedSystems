@@ -10,7 +10,7 @@ public class DHT {
 		//Simulation.debug(Util.SIMPLE+2,3);
 		
 		//Simulation.Test(Util.LAZY, 3);
-		Simulation.Case3(Util.LAZY, 9);
+		Simulation.Case3(Util.CHAIN, 9);
 		
 		
 		/*for (int ServerType = Util.SIMPLE; ServerType <= Util.LAZY; ServerType++){

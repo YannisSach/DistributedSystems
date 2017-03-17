@@ -46,6 +46,7 @@ public class LazyServer extends ChainServer{
 		if (isBetween(hashed,this.prevId,this.myId)){
 	
 			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],0));//fst replica
+			Util.inserts.decrementAndGet();
 			MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
 			this.printQueryAnswer("inserted" + ","+requestLst[KEY]+","+requestLst[VAL]);
 			this.print("inserted" + ","+requestLst[KEY]+","+requestLst[VAL]);

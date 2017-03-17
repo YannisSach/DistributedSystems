@@ -9,11 +9,11 @@ public class DHT {
 	public static void main (String[] args) throws IOException{
 		//Simulation.debug(Util.SIMPLE+2,3);
 		
-		//Simulation.Test(Util.LAZY, 3);
-		Simulation.Case3(Util.LAZY, 9);
+		//Simulation.Test(1, 3);
+		Simulation.Case3(2, 5);
+		/*
 		
-		
-		/*for (int ServerType = Util.SIMPLE; ServerType <= Util.LAZY; ServerType++){
+		for (int ServerType = Util.SIMPLE; ServerType <= Util.LAZY; ServerType++){
 			
 			
 			
@@ -38,7 +38,7 @@ public class DHT {
 	
 			
 			
-		}*/
+		}
 		/*
 		
 		float  sum = 0;

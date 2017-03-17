@@ -9,8 +9,8 @@ public class DHT {
 	public static void main (String[] args) throws IOException{
 		//Simulation.debug(Util.SIMPLE+2,3);
 		
-		//Simulation.Test(Util.LAZY, 3);
-		Simulation.Case3(Util.LAZY, 9);
+		Simulation.Test(Util.CHAIN, 3);
+		//Simulation.Case3(2, 9);
 		
 		
 		/*for (int ServerType = Util.SIMPLE; ServerType <= Util.LAZY; ServerType++){

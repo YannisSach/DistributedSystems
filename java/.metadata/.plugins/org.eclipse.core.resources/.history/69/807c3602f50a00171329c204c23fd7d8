@@ -44,12 +44,10 @@ public class LazyServer extends ChainServer{
 		int hashed = Util.hash(requestLst[KEY]);
 		int srcPort = Integer.parseInt(requestLst[SRC]);
 		if (isBetween(hashed,this.prevId,this.myId)){
-	
-			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],0));//fst replica
 			MySocket.send(srcPort, "" + this.myId + ",INSERTED,"+requestLst[KEY]+","+requestLst[VAL]);
 			this.printQueryAnswer("inserted" + ","+requestLst[KEY]+","+requestLst[VAL]);
 			this.print("inserted" + ","+requestLst[KEY]+","+requestLst[VAL]);
-			Util.inserts.decrementAndGet();
+			insert(new ReplicaSong(requestLst[KEY],requestLst[VAL],0));//fst replica
 			MySocket.send(this.nextPort, "" + srcPort+ ",INSERT_R,"+requestLst[KEY]+","+requestLst[VAL]+","+1);
 		}
 		else{

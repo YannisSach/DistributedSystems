@@ -241,9 +241,6 @@ public class Simulation {
 		Util.prints = true;
 		
 		
-		
-		
-		
 		for (int i=0; i<10; i++){
 			
 			randPort = ports.get(Util.getRandom(0, ports.size()-1));
@@ -254,28 +251,13 @@ public class Simulation {
 		Util.printQueryAnswer = false;
 		Util.prints = false;
 		
-		Util.wait(1);
+		
 		
 		ports.add(Util.getPort());
 		Server s = Util.getServer(ServerType, 11, 11-1,ports,k);
 		s.start();
 		MySocket.send(ports.get(0), "INIT,JOIN,"+Util.hash(""+11)+","+ports.get(11-1));
 		
-		
-		Util.wait(1);
-		Util.printQueryAnswer = true;
-		Util.prints = true;
-		
-		
-		for (int i=0; i<10; i++){
-			
-			randPort = ports.get(Util.getRandom(0, ports.size()-1));
-			MySocket.send(randPort, "INIT,QUERY,You don't match I tell you");
-			}
-		
-		
-		Util.printQueryAnswer = false;
-		Util.prints = false;
 		
 		Util.wait(1);
 		

@@ -241,9 +241,6 @@ public class Simulation {
 		Util.prints = true;
 		
 		
-		
-		
-		
 		for (int i=0; i<10; i++){
 			
 			randPort = ports.get(Util.getRandom(0, ports.size()-1));
@@ -254,7 +251,7 @@ public class Simulation {
 		Util.printQueryAnswer = false;
 		Util.prints = false;
 		
-		Util.wait(1);
+		
 		
 		ports.add(Util.getPort());
 		Server s = Util.getServer(ServerType, 11, 11-1,ports,k);
