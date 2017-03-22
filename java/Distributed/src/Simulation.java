@@ -364,7 +364,7 @@ public class Simulation {
 			}
 			
 		}
-		System.out.println("adadda");
+		
 		
 		
 		long endTime = System.currentTimeMillis();
